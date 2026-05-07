@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  table { 
+    table-layout: auto; 
+    width: max-content;
+    min-width: 100%;
+  }
+  th, td { 
+    min-width: 20ch;
+    max-width: 30ch;
+    word-break: break-word; 
+    white-space: normal; 
+  }
+  //テーブル列幅調整：https://developer.mozilla.org/ja/docs/Web/CSS/Reference/Properties/table-layout
+</style>
+</head>
+<body>
+
+ <?!= include("navigation", { url: url, sheetName: sheetName }); ?>
+
+  <div class="container mt-3">
+    <h2><?= sheetName ?></h2>
+    <input type="text" id="search" class="form-control mb-3" placeholder="All_Columns_Search">
+
+    <? var data = getSheetData(sheetName); ?>
+
+    <div class="table-responsive">
+      <table id="myTable" class="table table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            <? for (var i = 0; i < data[0].length; i++) { ?>
+              <th><?= data[0][i] ?></th>
+            <? } ?>
+          </tr>
+        </thead>
+        <tbody>
+          <? for (var j = 1; j < data.length; j++) { ?>
+            <tr>
+              <? for (var k = 0; k < data[j].length; k++) { ?>
+                <? var cell = String(data[j][k]); ?>
+                <? if(cell.match(/^https?:\/\//)) { ?>
+                   <td><a href="<?= cell ?>" target="_blank" rel="noopener noreferrer">URL</a></td>
+                <? } else { ?>
+                   <td><?= data[j][k] ?></td>
+                <? } ?>
+              <? } ?>
+            </tr>
+          <? } ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!--解説
+  <?!= include("navigation", { url: url, sheetName: sheetName }); ?>：navigation.htmlにオブジェクト(urlとsheetName)を渡す
+  https://developers.google.com/apps-script/guides/html/best-practices?hl=ja
+  スクリプトレッド：https://developers.google.com/apps-script/guides/html/templates?hl=ja
+  <div class="container mt-3"> : Container https://getbootstrap.jp/docs/5.3/layout/containers
+<h2><?= sheetName ?></h2>：画面テーブル上部にタイトルを表示
+<div class="table-responsive">:スマホ、PC両方対応 
+<input type="text" id="search" class="form-control mb-3" placeholder="All_Columns_Search">：検索フォーム
+<? var data = getSheetData(sheetName); ?>：コード.gsの関数をindex.htmlで取得したsheetNameを引数に実行
+  -->
+
+  <!--解説
+  for(i...) : ヘッダーを取得
+  for(j...) ：2行目以降の全行をループ
+  for(k...) ：jのループの中で、1行ずつ全列データを取得
+  Stringにキャストした値をmatch関数でhttps://で始まるかチェック、aタグでURLを有効化
+  -->
+
+  <script>
+    document.getElementById("search").addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      document.querySelectorAll("#myTable tbody tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(keyword) ? "" : "none";
+      });
+    });
+  </script>
+
+  <!--解説
+  スプレッドシート全列検索
+  getElementById(id)
+      inputフォームタグのidを指定 idプロパティが指定された文字列に一致する要素を表す Element オブジェクトを返す。 
+       https://developer.mozilla.org/ja/docs/Web/API/Document/getElementById
+  フォームで入力された値を小文字に変換している。    
+  addEventListener(type, listener)
+      指定された種類のイベントが発生するときに通知を受け取るオブジェクト。
+       https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener
+
+  querySelectorAll(#)       
+      css の指定した#タグをかえす
+      https://developer.mozilla.org/ja/docs/Web/API/Document/querySelectorAll 
+  forEach(...)
+  　　table tr タグ内データを小文字にして、入力値と比較し、結果を表示する     
+
+<template v-if="item.match(/^https?:\/\//)">
+
+       -->
+</body>
+</html>
